@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2-runtime start ecosystem.config.js --env production",
-    "dev": "nodemon ./src/server.js"
+    "dev": "nodemon ./src/server.js",
+    "test": "jest --watch"
   },
   "author": "Wagner",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {
+    "jest": "^29.6.1",
     "nodemon": "^2.0.22"
   }
 }

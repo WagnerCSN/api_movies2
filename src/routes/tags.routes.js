@@ -1,5 +1,5 @@
 const Router = require("express");
-const TagsController = require("../controllers/TagsController");
+const TagsController = require("../controllers/tagsController");
 const tagscontroller = new TagsController();
 const ensureAuthenticated = require("../middlewares/ensureAuthenticated");
 
