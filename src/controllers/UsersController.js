@@ -1,29 +1,18 @@
 const { hash, compare } = require('bcryptjs');
 const knex = require('../database/knex');
-const AppError = require('../utils/AppError')
+const AppError = require('../utils/AppError');
+const UserRepository = require('../repositories/UserRepository');
+const UserCreateService = require('../services/UserCreateService');
+const UserUpdateService = require('../services/UserUpdateService');
+const UserUpdateRepository = require('../repositories/UserUpdateRepository')
 
 class UsersController{
     async create(request, response){
         const {name, email, password} = request.body;
 
-        const hashedpassword = await hash(password, 8);
-        
-        const checkUserExist = await knex("users").select('*').where('name', name).first();
-        const checkEmailExist = await knex("users").select('*').where('email', email).first();
-       
-        if(checkUserExist){
-            throw new AppError("User already exists!")
-        }
-
-        if(checkEmailExist){
-            throw new AppError("Email not allowed")
-        }
-
-        await knex("users").insert({
-            name, 
-            email, 
-            password: hashedpassword,
-        })
+        const userRepository = new UserRepository();
+        const userCreateService = new UserCreateService(userRepository);
+        await userCreateService.execute({name, email, password});
         response.json();
     }
 
@@ -31,37 +20,11 @@ class UsersController{
         const { name, email, password, old_password } = request.body;
         const id = request.user.id;
 
-        const user = await knex('users').select('*').where('id', id).first();
-
-        if(!user){
-            throw new AppError('User not found');
-        }
-
-        user.name = name ;
-        user.email = email;
+        const userUpdateRepository = new UserUpdateRepository();
+        const userUpdateService = new UserUpdateService(userUpdateRepository);
+        await userUpdateService.execute({ name, email, password, old_password, id });
         
-        const userWithEamilExist = await knex('users').select('*');
-        const result = userWithEamilExist.find(mail => mail.email === email);
-
-        if(result && result.id !== user.id){
-            throw new AppError('This email is already in use!')
-        }
-
-        if(password && !old_password){
-            throw new AppError('Enter current password!')
-        }
-
-        if(password && old_password){
-            const checkOldPassword = await compare(old_password, user.password)
-
-            if(!checkOldPassword){
-                throw new AppError('Current password is incorrect!')
-            }
-
-            user.password = await hash(password, 8)
-        }
         
-        await knex('users').where({id}).update({name: user.name , email: user.email, password: user.password})
 
         response.json()
             
