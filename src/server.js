@@ -10,7 +10,7 @@ const app = express();
 const cors = require("cors");
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(origin: 'https://rocketmovie2023.netlify.app'));
 
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER));
 
